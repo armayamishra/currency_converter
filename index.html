@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Currency Converter</title>
+	<link rel="stylesheet" type="text/css" href="index.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+      <div class="container">
+      		<h1>Currency Converter</h1>
+      		<form action="#">
+      			<div class="cc-amt">
+      				<p>Enter Amount</p>
+      				<input type="text" value="1">
+      			</div>
+      			<div class="cc-list">
+      				<div class="exchange">
+      					<p>From</p>
+      				<div class="cc-box">
+      				<img src="https://flagsapi.com/US/flat/64.png">
+      				<select></select>
+      			</div>
+      			</div>
+      			<div class="cc-icon">
+      			<i class="fa-solid fa-rotate fa-fade"></i>
+      			</div>
+      			<div class="cc-to">
+      					<p>To</p>
+      				<div class="cc-box">
+      				<img src="https://flagsapi.com/NP/flat/64.png">
+      				<select></select>
+      			</div>
+      			</div>
+      			</div>
+      			<div class="cc-change">Getting Exchange Rate</div>
+      			<button>Exchange Rate</button>
+      		</form>
+      </div>
+	  <script type="text/javascript" src="index.js"></script>
+	   <script>
+		const ccList = document.querySelectorAll(".cc-list select"),
+        fromCurrency = document.querySelector(".exchange select"),
+        toCurrency  = document.querySelector(".cc-to select"),
+        getButton = document.querySelector("form button");  
+        for(let i = 0; i < ccList.length; i++){
+        for(currency_code in country_code ){
+            let selected;
+            if(i == 0){
+            selected = currency_code == "USD" ? "selected" : "";
+        }
+        else if(i == 1){
+            selected = currency_code == "NPR" ? "selected" : "";
+        }
+        let optionTag = `<option value="${currency_code}" ${selected}>${currency_code}</option>`;
+            ccList[i].insertAdjacentHTML("beforeend", optionTag);
+        }
+        ccList[i].addEventListener("change", e =>{
+            loadFlag(e.target);
+            });
+        }
+        function loadFlag(element){
+        for(code in country_code){
+            if(code == element.value){
+            let imgTag = element.parentElement.querySelector("img");
+            imgTag.src = `https://flagsapi.com/${country_code[code]}/flat/64.png`;
+               }
+            }
+        }
+        window.addEventListener("load", () =>{
+            getExchangeRate();
+        });
+        getButton.addEventListener("click", e =>{
+        e.preventDefault();
+        getExchangeRate();
+});
+        const exchangeIcon = document.querySelector(".cc-list .cc-icon");
+        exchangeIcon.addEventListener("click", () => {
+        let temp = fromCurrency.value;
+            fromCurrency.value = toCurrency.value;
+            toCurrency.value = temp;
+            loadFlag(fromCurrency);
+            loadFlag(toCurrency);
+            getExchangeRate(); 
+        })
+        function getExchangeRate(){
+        const amount = document.querySelector(".cc-amt input"),
+        exchangeRateText = document.querySelector(".cc-change");
+        let amountValue = amount.value;
+        if(amountValue == "" || amountValue == "0"){
+        amount.value = "1";
+        amountValue = 1;
+        }
+        exchangeRateText.innerText = "Getting Exchange Rate";
+        let url = `https://v6.exchangerate-api.com/v6/e265775b7ffbb28b473c2a59/latest/${fromCurrency.value}`;
+        fetch(url).then(response => response.json()).then(result => {
+        let changeRate = result.conversion_rates[toCurrency.value];
+        let totalExchngRate = (amountValue * changeRate).toFixed(2);
+        exchangeRateText.innerText = `${amountValue} ${fromCurrency.value} = ${totalExchngRate} ${toCurrency.value}`;
+        })
+        }
+	  </script>
+</body>
+</html>
